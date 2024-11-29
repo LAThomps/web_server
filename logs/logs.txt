@@ -1,0 +1,1 @@
+this is just a placeholder file so the `log` directory gets cloned
