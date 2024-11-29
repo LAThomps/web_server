@@ -1,0 +1,9 @@
+# don't need to version these
+**/__pycache__/
+
+# store your db user/password/salt here
+.env*
+
+# don't want to record the server logs
+server_log*
+
