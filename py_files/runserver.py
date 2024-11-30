@@ -1,4 +1,6 @@
-
+"""
+Main module for running the web server
+"""
 import argparse
 import socket
 from socket import socket as Socket
@@ -7,17 +9,28 @@ import time
 import os
 from dotenv import load_dotenv
 from data import db
-import pandas as pd
+from typing import Literal
 from route_requests import route_traffic
+
+# make sure the username/password of your database, and 
+# salt used for each password
 load_dotenv("../.env")
 
+# can change port if you want, will need sudo privileges on linux
 HOST = "127.0.0.1"
 PORT = 80
 
+# change this to whatever you call the database the `users` table is stored
+DATABASE_NAME = "mini_social"
+
+# connection to the database
 DB_CONN = db(
     user=os.getenv("MYSQL_USER"),
-    password=os.getenv("MYSQL_PW")
+    password=os.getenv("MYSQL_PW"),
+    database=DATABASE_NAME
 )
+
+# hash salt and path to where your server log should be
 SALT = os.getenv("MINI_SOCIAL_SALT")
 LOG_PATH = "../logs/server_log.txt"
 
@@ -38,7 +51,7 @@ def main():
         unit=args.unit_of_time
     )
 
-    # write server logs
+    # write server logs (modify handle_client function to add content to logs)
     if os.path.isfile(LOG_PATH):
         os.remove(LOG_PATH)
     with open(LOG_PATH, "w") as log_file:
@@ -99,7 +112,7 @@ def parse_request(request: str) -> bytes:
         return "HTTP/1.1 404 Not Found\r\n\r\n"
     # typical GET request
     elif actions[0] == 'GET':
-        ##### stopped here
+        # function for normal GET requests, send 404 for anything else
         response = route_traffic(actions[1], DB_CONN, SALT)
         if response:
             return response
@@ -109,24 +122,51 @@ def parse_request(request: str) -> bytes:
         return "HTTP/1.1 404 Not Found\r\n\r\n"
 
 
-def start_server(duration, unit):
+def start_server(
+        duration: int, 
+        unit: Literal['s', 'min']
+    ) -> None:
+    """
+    Function for starting/running webserver
+
+    Parameters
+    ----------
+    duration : int
+        Length of time server is up per user input.
+    unit : Literal['s', 'min']
+        Unit of time for the duration, also per terminal argument.
+    """
+    # basic Berkeley sockets syntax per Python socket lib
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind((HOST, PORT))
         s.listen(20)
         print("server listening on port 80...")
+
+        # keep track of time server is up
         start = time.time()
         interval = duration if unit == 's' else duration * 60
         end = start + interval
+
+        # run until time is up, one thread for each request
         while True:
             if time.time() > end:
                 break
             conn, addr = s.accept()
-            # print(type(conn), type(addr))
             future = EXECUTOR.submit(handle_client, conn, addr)
+        
+        # shut down all threads for server stop
         EXECUTOR.shutdown(wait=False)
         return
 
 def create_parser():
+    """
+    Creating argument parser for module
+
+    Returns
+    -------
+    ArgumentParser
+        Parser object for module to use.
+    """
     parser = argparse.ArgumentParser(description="Web Server")
     parser.add_argument('timeout', help="duration to run server")
     parser.add_argument(
