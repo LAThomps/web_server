@@ -10,11 +10,12 @@ Building a web server using only base python and rendering a few html pages with
 5. Modify `DATABASE_NAME` variable in py_files/add_user.py and py_files/runserver.py to the database name you use for your table.
 6. Run py_files/add_user.py to add users to the database, follow console prompts.
 7. Run py_files/runserver.py with `-h` flag to see the argument options.
-8. Run `runserver.py` <time to run server for> <unit of time> <number of threads to use for server>
+8. Run `runserver.py` \<time to run server for\> \<unit of time\> \<number of threads to use for server\> e.g. runserver.py 2 min 20
 9. Enter `127.0.0.1` in a browser after server is listening on port 80. Attempt login based on users you entered.
 
 ## Notes
 - This repo is meant to show how a simple webserver works from the lowest level abstraction, `Berkley Sockets`.
 - The server is managed with python, although in a production setting you would want to use a full stack framework like `Django`.
 - Read through the code base to see the internals of what a simple web server does to render html content to a user.
+- Modify `py_files/data/conn.py` if you would like to use a db dialect other than mysql or sqlite.
 
