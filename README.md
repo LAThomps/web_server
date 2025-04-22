@@ -15,7 +15,7 @@ Building a web server using only base python and rendering a few html pages with
 
 ## Notes
 - This repo is meant to show how a simple webserver works from the lowest level abstraction, `Berkley Sockets`.
-- The server is managed with python, although in a production setting you would want to use a full stack framework like `Django`.
+- The server is managed with python, in a production setting `Gunicorn` is the production web server backend.
 - Read through the code base to see the internals of what a simple web server does to render html content to a user.
 - Modify `py_files/data/conn.py` if you would like to use a db dialect other than mysql or sqlite.
 
